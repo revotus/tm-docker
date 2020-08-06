@@ -89,7 +89,7 @@ while getopts ":PUTn:u:" opt; do
 done
 shift $((OPTIND -1))
 
-cat /etc/samba/smb.confi
+cat /etc/samba/smb.conf
 exec dbus-daemon --system --nofork --nosyslog; \
 exec /usr/sbin/smbd --no-process-group --log-stdout --foreground; \
 exec avahi-daemon --no-drop-root; \
