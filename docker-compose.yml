@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
       context: ./samba
     network_mode: "host"
+    container_name: samba
+    image: revotus:samba
     # environment:
       # - CUSTOM_SMB_CONF=false
       # - CUSTOM_USER=false
@@ -33,12 +35,12 @@ services:
      # - /var/cache/samba:/var/cache/samba
      # - /ect/samba:/etc/samba
      # - /run/samba:/run/samba
-    container_name: timemachine
-    image: revotus/timemachine
   avahi:
     build:
       dockerfile: Dockerfile
       context: ./avahi
+    image: revotus/avahi
+    container_name: avahi
     network_mode: "host"
     ports:
      - "137:137/udp"
