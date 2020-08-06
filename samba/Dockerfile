@@ -23,4 +23,4 @@ VOLUME ["/etc/samba", "/var/log/samba", "/srv/shares"]
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-CMD ["-P", "-U"]
+CMD ["-P", "-U", "-T"]

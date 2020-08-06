@@ -12,6 +12,7 @@ RUN apk update && \
 
 COPY ./entrypoint.sh /
 COPY ./avahi-daemon.conf /etc/avahi/avahi-daemon.conf
+COPY ./smb1.service /etc/cavahi/services/smb.service
 
 VOLUME ["/var/run/dbus"]
 

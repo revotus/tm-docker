@@ -46,7 +46,23 @@ add_users () {
 
     conf-utils setvar -y -q -s $USERS_SHARENAME -n "path" -a "$smbpath" $SMB_CONF
     conf-utils setvar -y -q -s $USERS_SHARENAME -n "comment" -a "Users" $SMB_CONF
+    conf-utils setvar -y -q -s $USERS_SHARENAME -n "valid users" -a "$USERS_VALIDUSERS" $SMB_CONF
     conf-utils setvar -y -q -s $USERS_SHARENAME -n "writeable" -a yes -f pretty $SMB_CONF
+}
+add_timemachine () {
+    local pathend=$(echo $TIMEMACHINE_SHARENAME | tr '[:upper:]' '[:lower:]')
+    local smbpath="$SMBVOL_BASE/$pathend"
+
+    conf-utils setvar -y -q -s $GLOBAL_SHARENAME -n "vfs objects" -a "catia fruit streams_xattr" $SMB_CONF
+    conf-utils setvar -y -q -s $GLOBAL_SHARENAME -n "fruit:model" -a "RackMac" $SMB_CONF
+
+    conf-utils add_section -y -q -s $TIMEMACHINE_SHARENAME $SMB_CONF
+
+    conf-utils setvar -y -q -s $TIMEMACHINE_SHARENAME -n "path" -a "$smbpath" $SMB_CONF
+    conf-utils setvar -y -q -s $TIMEMACHINE_SHARENAME -n "comment" -a "TimeMachine" $SMB_CONF
+    conf-utils setvar -y -q -s $TIMEMACHINE_SHARENAME -n "writeable" -a yes $SMB_CONF
+    conf-utils setvar -y -q -s $TIMEMACHINE_SHARENAME -n "valid users" -a "$TIMEMACHINE_VALIDUSERS" $SMB_CONF
+    conf-utils setvar -y -q -s $TIMEMACHINE_SHARENAME -n "fruit:time machine" -a "yes" -f pretty $SMB_CONF
 }
 
 while getopts ":PUTn:u:" opt; do
@@ -58,7 +74,7 @@ while getopts ":PUTn:u:" opt; do
             add_users
         ;;
         T )
-            echo "TimeMachine"
+            add_timemachine
         ;;
         n )
             sharename=$(sed 's/^[[:space:]]+(.*)[[:space:]]+$/\1/' <<< $OPTARG)
