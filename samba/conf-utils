@@ -382,4 +382,4 @@ infile="$1"
 
 cmd_args=("$infile" "$sect" "${cmd_args[@]}" "$quiet" "$force" "$smbformat")
 
-eval "$cmd ${cmd_args[@]}"
+$cmd "${cmd_args[@]}"
