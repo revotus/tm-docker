@@ -6,6 +6,8 @@ WORKDIR /
 RUN apk update && \
     apk add --no-cache \
         samba \
+        avahi \
+        avahi-tools \
         bash
 
 # RUN mkdir /srv/shares
@@ -18,6 +20,7 @@ RUN addgroup -S smb && \
 COPY ./entrypoint.sh /
 COPY ./conf-utils /usr/bin/
 COPY ./smb_default.conf /etc/samba/smb.conf
+COPY ./smb1.service /etc/avahi/services/smb.service
 
 VOLUME ["/etc/samba", "/var/log/samba", "/srv/shares"]
 

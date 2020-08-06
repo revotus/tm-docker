@@ -91,3 +91,4 @@ shift $((OPTIND -1))
 
 cat /etc/samba/smb.conf
 exec /usr/sbin/smbd --no-process-group --log-stdout --foreground
+exec avahi-daemon --no-drop-root
