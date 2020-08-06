@@ -1,0 +1,385 @@
+#!/bin/bash
+
+_check_file () {
+   local file="$1"
+   # Check if $infile is null or unset
+   if [ -z "$file" ]; then
+      # Check if $infile is null
+      if [ "$file" == '' ]; then
+         echo "Input filename is NULL"
+         return 1
+      else
+         echo "Input file was not provided"
+         return 2
+      fi
+   fi
+   if ! [ -s "$file" ]; then
+      echo "Input is not a file: '$file'"
+      return 3
+   fi
+}
+
+_normalize () {
+   file="$1"
+
+   # Remove blank/space only lines
+   sed -Ei  '/^[[:space:]]*$/d' $file
+   # Remove surrounding whitespace
+   sed -Ei -e 's/^[[:space:]]+//' -e 's/[[:space:]]+$//' "$file"
+   # Remove whitespace in section defs
+   sed -Ei -e 's/\[[[:space:]]+/\[/' -e 's/[[:space:]]+]/]/' "$file"
+   # Remove whitespace  surrounding `=`
+   sed -Ei 's/[[:space:]]*=[[:space:]]*/=/' "$file"
+   # Add quotes around values
+   sed -Ei -e 's/=([^"].*)/="\1/' -e 's/=(.*[^"])$/=\1"/' "$file"
+   # Try to convert truthy values
+   sed -Ei 's/="(yes|true)"/=true/I' "$file"
+   # Try to convert falsy values
+   sed -Ei 's/="(no|false)"/=false/I' "$file"
+   # Add newline to the end
+   # echo '' >> "$file"
+
+   cat $file
+}
+
+_prettyfi () {
+   file="$1"
+
+   sed -Ei 's/="(.*)"/=\1/' "$file"
+   sed -Ei 's/=/ = /' "$file"
+   sed -Ei 's/^([^[].*)/   \1/' "$file"
+
+   cat "$file"
+}
+
+_write_conf () {
+   # local smbconf="${smbconf:-$(<$infile)}"
+   local outfile="${outfile:-$infile}"
+   local infile="$1"
+   local quiet="${2:-no}"
+   local force="${3:-no}"
+   local write="$force"
+   local format="${4:-norm}"
+   tmpfile=$(mktemp)
+   conffile=$(mktemp)
+
+   _check_file "$infile"
+   cat "$infile" > "$tmpfile"
+
+   _check_file "$outfile"
+
+   if [ "$format" == "norm" ]; then
+      cat "$tmpfile" > "$conffile"
+   elif [ "$format" == "pretty" ]; then
+      _prettyfi "$tmpfile" > "$conffile"
+   else
+      echo "Not a valid format: '$format'"
+      exit 69
+   fi
+
+   if [ "$quiet" != yes ]; then
+      cat "$conffile"
+   fi
+
+   while [ "$write" != yes ]; do
+      echo ''
+      read -p "Write config to file: '$outfile'? [y/N]  " choice
+      case "$choice" in
+         [Yy]* )
+            write=yes
+            break
+         ;;
+         [Nn]* )
+            write=no
+            break
+         ;;
+         '' )
+            write=no
+            break
+         ;;
+         * )
+            echo "Not an option: $choice"
+         ;;
+      esac
+   done
+
+   [ "$write" == yes ] && cat $conffile > $outfile
+}
+
+reformat () {
+   set -e
+   infile="$1"
+   shift
+   tmpfile=$(mktemp)
+   conffile=$(mktemp)
+
+   _check_file "$infile"
+   cat "$infile" > "$tmpfile"
+
+   _normalize "$tmpfile" > $conffile
+
+   _write_conf "$conffile" "$@"
+}
+
+add_section () {
+   set -e
+   infile="$1"
+   local section="$2"
+   shift 2
+   tmpfile=$(mktemp)
+   conffile=$(mktemp)
+
+   _check_file $infile
+   cat "$infile" > "$tmpfile"
+
+   _normalize "$tmpfile" > $conffile
+
+   grep -qxF "[$section]" $conffile || printf "\n[$section]" >> $conffile
+
+   _write_conf "$conffile" "$@"
+}
+
+getvar () {
+   local section="$1"
+   local var="${2//[[:space:]]/_}"
+   local infile="$3"
+   local bashvar=${section}__${var}
+
+   normalize $infile "no" "yes"
+   _export_vars
+
+   echo ${!bashvar}
+}
+
+setvar () {
+   set -e
+   local infile="$1"
+   local section="$2"
+   local var="$3"
+   local val="$4"
+   shift 4
+   tmpfile1=$(mktemp)
+   tmpfile2=$(mktemp)
+   conffile=$(mktemp)}
+   local regvar=''
+
+   _check_file $infile
+   cat "$infile" > "$tmpfile1"
+
+   _normalize "$tmpfile1" > "$tmpfile2"
+
+   # Check section exists
+   grep -qxF "[$section]" "$tmpfile2" || (echo "Section not found: '$section'"; exit 69)
+
+   # Norm var and prep for regex
+   var=$(sed -E -e 's/([[:alnum:]]*)_+/\1 /g' <<< "$var")
+   regvar=$(sed -E -e 's/([[:alnum:]]*)[[:space:]]+/\1[[:space:]]*/g' <<< "$var")
+
+   awk -F'\n' -v RS='[' \
+      -v section=$section -v var="$var" -v val=$val -v regvar="$regvar" \
+      '/.+/ {OFS="\n"
+         print "["$1;
+         for (i=2; i<NF; i++) {
+            if (section"]" != $1 || $i !~ regvar) {
+               print $i;
+            }
+         }
+         if (section"]" == $1) {
+            print var"=\""val"\"";
+         }
+      }' "$tmpfile2" > "$conffile"
+
+   _write_conf "$conffile" "$@"
+}
+
+_norm2bash () {
+   local infile="$1"
+   local tmpfile="$(mktemp)"
+   cat $infile > $tmpfile
+
+   # Add underscores for spaces in variables for loading
+   sed -Ei -e 's/([[:alnum:]]*)[[:space:]]+/\1_/g' \
+       -e 's/=([[:alnum:]]*)_+/=\1 /g' $tmpfile
+
+   # Prepare for awk command by stripping final bracket from section
+   sed -Ei 's/^(.*)]/\1/' $tmpfile
+
+   # Prepend each var with section title and double underscore
+   awk -F'\n' -v RS='[' -v OFS='__' \
+   '{for (i=2; i<=NF; i++) print $1,$i}' $tmpfile
+}
+
+_export_vars () {
+   confvars=( $(_norm2bash $conffile) )
+
+   export "${confvars[@]}"
+}
+
+_view_conf () {
+   cat $conffile
+   echo ''
+}
+
+_view_section () {
+   local section="$1"
+
+   awk -F'\n' -v RS='[' -v section=$section \
+      'section"]" == $1 {
+         print "["$1;
+         for (i=2; i<NF; i++) {
+            print $i;
+         }
+      }' $conffile
+}
+
+_usage_main () {
+   local prog=${0##*/}
+   local RC="${1:-0}"
+
+   IFS=$'\n' read -r -d '' -a commands < <( declare -F)
+   commands=( ${commands[@]##declare -f} )
+   commands=( ${commands[@]/#_*/} )
+
+   echo "
+Usage: $prog [-opts] <command> [-cmd_opts]
+
+   Options:
+      -h          Show this message and exit
+
+   Commands:
+
+$(printf '\t%s\n' ${commands[@]})
+
+   Use '$prog [opts] <command> -h for help with individual commands'
+" >&2
+   exit $RC
+}
+
+_usage_cmd () {
+   local prog=${0##*/}
+   # local others="$2"
+   local RC="${1:-0}"
+
+   echo "
+Usage: $prog [-opts] $cmd [-cmd_opts]
+
+   Command Options (All):
+      -h          Show this message and exit
+      -q          Print no output
+      -y          Do not ask before writing
+      -f          Format of output: 'norm' (normalized - default) or 'pretty'
+   Command Options ($cmd):
+" >&2
+   exit $RC
+}
+
+while getopts ":h" opt; do
+   case ${opt} in
+      h )
+         _usage_main
+      ;;
+      "?" )
+         echo "Unknown option: -$OPTARG"; _usage_main 1
+      ;;
+      : )
+         echo "No argument value for option: -$OPTARG"; _usage_main 2
+      ;;
+   esac
+done
+
+if [ $OPTIND -eq 1 ]; then
+   if [ -z $1 ]; then
+      _usage_main
+   else
+      cmd=$1;
+      shift
+      OPTIND=1
+   fi
+fi
+
+quiet=no
+force=no
+smbformat=norm
+declare -a cmd_args
+parsed=''
+
+case "$cmd" in
+   getvar )
+      while getopts ":n:hs:qyf:" opt; do
+         case "$opt" in
+            n )
+               name="$OPTARG"
+               parsed+="$opt$opt"
+            ;;
+            : )
+               echo "No argument value for option: -$OPTARG"; _usage_cmd 2
+            ;;
+         esac
+      done
+      cmd_args=("$name" "${cmd_args[@]}")
+   ;;
+   setvar )
+      while getopts ":n:a:hs:qyf:" opt; do
+         case "$opt" in
+            n )
+               name="$OPTARG"
+               parsed+="$opt$opt"
+            ;;
+            a )
+               val="$OPTARG"
+               parsed+="$opt$opt"
+            ;;
+            : )
+               echo "No argument value for option: -$OPTARG"; _usage_cmd 2
+            ;;
+         esac
+      done
+      cmd_args=("$name" "$val" "${cmd_args[@]}")
+   ;;
+esac
+
+OPTIND=1
+
+while getopts ":hs:qyf:" opt; do
+   case "$opt" in
+      h )
+         _usage_cmd
+      ;;
+      s )
+         sect="$OPTARG"
+      ;;
+      q )
+         quiet=yes
+      ;;
+      y )
+         force=yes
+      ;;
+      f )
+         smbformat="$OPTARG"
+      ;;
+      "?" )
+         cnt=$(echo "$parsed" | grep -o "$OPTARG" | wc -l)
+         if [ $cnt -eq 0 ]; then
+            echo "Unknown option: -$OPTARG"; _usage_cmd 1
+         elif [ $cnt -eq 2 ]; then
+            OPTIND=$((OPTIND +1))
+         fi
+      ;;
+      : )
+         echo "No argument value for option: -$OPTARG"; _usage_main 2
+      ;;
+   esac
+done
+
+if [ $OPTIND -eq 1 ]; then
+   if [ -z $1 ]; then
+      _usage_cmd
+   fi
+fi
+
+shift $((OPTIND -1))
+infile="$1"
+
+cmd_args=("$infile" "$sect" "${cmd_args[@]}" "$quiet" "$force" "$smbformat")
+
+$cmd "${cmd_args[@]}"
