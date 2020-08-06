@@ -6,11 +6,11 @@ WORKDIR /
 RUN apk update && \
     apk add --no-cache \
         samba \
-        samba-common-tools \
-        samba-server \
-        avahi \
-        avahi-tools \
-        avahi-compat-libdns_sd \
+        # samba-common-tools \
+        # samba-server \
+        # avahi \
+        # avahi-tools \
+        # avahi-compat-libdns_sd \
         dbus \
         bash
 
