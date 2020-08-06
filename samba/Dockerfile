@@ -26,7 +26,10 @@ COPY ./conf-utils /usr/bin/
 COPY ./smb_default.conf /etc/samba/smb.conf
 COPY ./smb1.service /etc/avahi/services/smb.service
 
+EXPOSE 137/udp 138/udp 139 445
+
 VOLUME ["/etc/samba", "/var/log/samba", "/srv/shares"]
+RUN chown -R smbuser:smb /srv/shares
 
 ENTRYPOINT ["/entrypoint.sh"]
 
