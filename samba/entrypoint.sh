@@ -93,5 +93,7 @@ cat /etc/samba/smb.conf
 
 exec dbus-daemon --system --nofork --nosyslog &
 exec avahi-daemon --no-drop-root &
-exec /usr/sbin/nmbd --foreground --no-process-group --log-stdout
-exec /usr/sbin/smbd --no-process-group --log-stdout --foreground
+ionice -c 3 nmbd -D
+exec ionice -c 3 smbd -FS --no-process-group
+# exec /usr/sbin/nmbd --foreground --no-process-group --log-stdout
+# exec /usr/sbin/smbd --no-process-group --log-stdout --foreground
