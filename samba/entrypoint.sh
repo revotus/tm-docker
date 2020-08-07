@@ -35,7 +35,8 @@ add_public () {
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "comment" -a "Public" "$SMBCONF"
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "guest ok" -a "yes" "$SMBCONF"
-    conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "writeable" -a "yes" -f "pretty" "$SMBCONF"
+    conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "writeable" -a "yes" "$SMBCONF"
+    conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "browseable" -a "yes" -f "pretty" "$SMBCONF"
 }
 
 add_users () {
