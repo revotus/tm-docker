@@ -24,8 +24,8 @@ new() {
 }
 
 add_public () {
-    local pathend=$(echo "$PUBLIC_SHARENAME" | tr '[:upper:]' '[:lower:]')
-    local smbpath="$SMBVOL_BASE/$pathend"
+    local pathcomp=$(echo "$PUBLIC_SHARENAME" | tr '[:upper:]' '[:lower:]')
+    local smbpath="$SMBVOL_BASE/$pathcomp"
 
     # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "follow symlinks" -a "yes" $SMBCONF
     # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "wide links" -a "yes" "$SMBCONF"
@@ -36,30 +36,30 @@ add_public () {
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "comment" -a "Public" "$SMBCONF"
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "guest ok" -a "yes" "$SMBCONF"
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "writeable" -a "yes" "$SMBCONF"
-    conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "browseable" -a "yes" -f "pretty" "$SMBCONF"
+    conf-utils setvar -y -s "$PUBLIC_SHARENAME" -n "browseable" -a "yes" -f "pretty" "$SMBCONF"
 }
 
 add_users () {
     addgroup shares
     adduser "$user" shares
 
-    local pathend=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
-    local smbpath="$SMBVOL_BASE/$pathendi/%U"
+    local pathcomp=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
+    local smbpath="$SMBVOL_BASE/$pathcomp/%U"
 
     conf-utils add_section -y -q -s "$USERS_SHARENAME" "$SMBCONF"
 
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "comment" -a "Users" "$SMBCONF"
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "valid users" -a "$USERS_VALIDUSERS" "$SMBCONF"
-    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "writeable" -a "yes" "$SMBCONF"
-    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_share.sh %U" -f "pretty" "$SMBCONF"
+    conf-utils setvar -y -s "$USERS_SHARENAME" -n "writeable" -a "yes" -f "pretty" "$SMBCONF"
+    # conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_share.sh %U" -f "pretty" "$SMBCONF"
 }
 add_timemachine () {
     addgroup timemachine
-    adduser $user timemachine
+    adduser "$user" timemachine
 
-    local pathend=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
-    local smbpath="$SMBVOL_BASE/$pathend/%U"
+    local pathcomp=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
+    local smbpath="$SMBVOL_BASE/$pathcomp/%U"
 
     conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "vfs objects" -a "catia fruit streams_xattr" "$SMBCONF"
     conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "fruit:model" -a "RackMac" "$SMBCONF"
@@ -72,8 +72,8 @@ add_timemachine () {
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "writeable" -a "yes" "$SMBCONF"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine" -a "yes" "$SMBCONF"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "veto files" -a "/._*/.DS_Store/" "$SMBCONF"
-    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "delete veto files" -a "yes" "$SMBCONF"
-    conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_tm.sh %U" -f "pretty" "$SMBCONF"
+    conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "delete veto files" -a "yes" -f "pretty" "$SMBCONF"
+    # conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_tm.sh %U" -f "pretty" "$SMBCONF"
 }
 
 while getopts ":u:PUTn:" opt; do
@@ -82,6 +82,8 @@ while getopts ":u:PUTn:" opt; do
             user="$OPTARG"
             adduser -D -H "$user"
             echo -e "buttass\nbuttass" | smbpasswd -s -a "$user"
+            ./create_user_share.sh "$user"
+            ./create_user_tm.sh "$user"
             echo $user
         ;;
         P )
