@@ -20,10 +20,10 @@ _check_file () {
 }
 
 _normalize () {
-   file="$1"
+   local file="$1"
 
    # Remove blank/space only lines
-   sed -Ei  '/^[[:space:]]*$/d' $file
+   sed -Ei  '/^[[:space:]]*$/d' "$file"
    # Remove surrounding whitespace
    sed -Ei -e 's/^[[:space:]]+//' -e 's/[[:space:]]+$//' "$file"
    # Remove whitespace in section defs
@@ -37,43 +37,33 @@ _normalize () {
    # Try to convert falsy values
    sed -Ei 's/="(no|false)"/=false/I' "$file"
    # Add newline to the end
-   # echo '' >> "$file"
+   echo '' >> "$file"
 
-   cat $file
+   cat "$file" > "$normfile"
+   cat "$file"
 }
 
 _prettyfi () {
-   file="$1"
+   local file="$1"
 
    sed -Ei 's/="(.*)"/=\1/' "$file"
    sed -Ei 's/=/ = /' "$file"
    sed -Ei 's/^([^[].*)/   \1/' "$file"
 
+   cat "$file" > "$pfile"
    cat "$file"
 }
 
 _write_conf () {
-   # local smbconf="${smbconf:-$(<$infile)}"
-   local outfile="${outfile:-$infile}"
-   local infile="$1"
-   local quiet="${2:-no}"
-   local force="${3:-no}"
    local write="$force"
-   local format="${4:-norm}"
-   tmpfile=$(mktemp)
-   conffile=$(mktemp)
 
-   _check_file "$infile"
-   cat "$infile" > "$tmpfile"
-
-   _check_file "$outfile"
-
-   if [ "$format" == "norm" ]; then
-      cat "$tmpfile" > "$conffile"
-   elif [ "$format" == "pretty" ]; then
-      _prettyfi "$tmpfile" > "$conffile"
+   if [ "$smbformat" == "norm" ]; then
+      _normalize "$conffile" > /dev/null
+   elif [ "$smbformat" == "pretty" ]; then
+      _normalize "$conffile" > /dev/null
+      _prettyfi "$conffile" > /dev/null
    else
-      echo "Not a valid format: '$format'"
+      echo "Not a valid format: '$smbformat'"
       exit 69
    fi
 
@@ -103,40 +93,35 @@ _write_conf () {
       esac
    done
 
-   [ "$write" == yes ] && cat $conffile > $outfile
+   if [ "$write" == yes ]; then
+      cat $conffile > $outfile
+   fi
 }
 
 reformat () {
    set -e
-   infile="$1"
-   shift
-   tmpfile=$(mktemp)
-   conffile=$(mktemp)
+   local _infile="$1"
 
-   _check_file "$infile"
-   cat "$infile" > "$tmpfile"
+   _check_file "$_infile"
+   cat "$_infile" > "$conffile"
 
-   _normalize "$tmpfile" > $conffile
+   _normalize "$conffile" > /dev/null
 
-   _write_conf "$conffile" "$@"
+   _write_conf
 }
 
 add_section () {
    set -e
-   infile="$1"
-   local section="$2"
-   shift 2
-   tmpfile=$(mktemp)
-   conffile=$(mktemp)
+   local _infile="$1"
 
-   _check_file $infile
-   cat "$infile" > "$tmpfile"
+   _check_file "$_infile"
+   cat "$_infile" > "$conffile"
 
-   _normalize "$tmpfile" > $conffile
+   _normalize "$conffile" > /dev/null
 
-   grep -qxF "[$section]" $conffile || printf "\n[$section]" >> $conffile
+   grep -qxF "[$section]" "$conffile" || printf "\n[$section]" >> "$conffile"
 
-   _write_conf "$conffile" "$@"
+   _write_conf
 }
 
 getvar () {
@@ -153,30 +138,25 @@ getvar () {
 
 setvar () {
    set -e
-   local infile="$1"
-   local section="$2"
-   local var="$3"
-   local val="$4"
-   shift 4
-   tmpfile1=$(mktemp)
-   tmpfile2=$(mktemp)
-   conffile=$(mktemp)}
+   local _infile="$1"
+   tmpfile=$(mktemp)
    local regvar=''
 
-   _check_file $infile
-   cat "$infile" > "$tmpfile1"
+   _check_file "$_infile"
+   cat "$_infile" > "$conffile"
 
-   _normalize "$tmpfile1" > "$tmpfile2"
+   _normalize "$conffile" > /dev/null
 
    # Check section exists
-   grep -qxF "[$section]" "$tmpfile2" || (echo "Section not found: '$section'"; exit 69)
+   grep -qxF "[$section]" "$conffile" || (echo "Section not found: '$section'"; exit 69)
 
    # Norm var and prep for regex
-   var=$(sed -E -e 's/([[:alnum:]]*)_+/\1 /g' <<< "$var")
-   regvar=$(sed -E -e 's/([[:alnum:]]*)[[:space:]]+/\1[[:space:]]*/g' <<< "$var")
+   varname=$(sed -E -e 's/([[:alnum:]]*)_+/\1 /g' <<< "$varname")
+   regvar=$(sed -E -e 's/([[:alnum:]]*)[[:space:]]+/\1[[:space:]]*/g' <<< "$varname")
 
+   cat "$conffile" > "$tmpfile"
    awk -F'\n' -v RS='[' \
-      -v section=$section -v var="$var" -v val=$val -v regvar="$regvar" \
+      -v section=$section -v varname="$varname" -v varval=$varval -v regvar="$regvar" \
       '/.+/ {OFS="\n"
          print "["$1;
          for (i=2; i<NF; i++) {
@@ -185,11 +165,11 @@ setvar () {
             }
          }
          if (section"]" == $1) {
-            print var"=\""val"\"";
+            print varname"=\""varval"\"";
          }
-      }' "$tmpfile2" > "$conffile"
+      }' "$tmpfile" > "$conffile"
 
-   _write_conf "$conffile" "$@"
+   _write_conf
 }
 
 _norm2bash () {
@@ -273,6 +253,7 @@ Usage: $prog [-opts] $cmd [-cmd_opts]
    exit $RC
 }
 
+echo "$@"
 while getopts ":h" opt; do
    case ${opt} in
       h )
@@ -300,7 +281,6 @@ fi
 quiet=no
 force=no
 smbformat=norm
-declare -a cmd_args
 parsed=''
 
 case "$cmd" in
@@ -308,7 +288,7 @@ case "$cmd" in
       while getopts ":n:hs:qyf:" opt; do
          case "$opt" in
             n )
-               name="$OPTARG"
+               varname="$OPTARG"
                parsed+="$opt$opt"
             ;;
             : )
@@ -316,17 +296,16 @@ case "$cmd" in
             ;;
          esac
       done
-      cmd_args=("$name" "${cmd_args[@]}")
    ;;
    setvar )
       while getopts ":n:a:hs:qyf:" opt; do
          case "$opt" in
             n )
-               name="$OPTARG"
+               varname="$OPTARG"
                parsed+="$opt$opt"
             ;;
             a )
-               val="$OPTARG"
+               varval="$OPTARG"
                parsed+="$opt$opt"
             ;;
             : )
@@ -334,7 +313,6 @@ case "$cmd" in
             ;;
          esac
       done
-      cmd_args=("$name" "$val" "${cmd_args[@]}")
    ;;
 esac
 
@@ -346,7 +324,7 @@ while getopts ":hs:qyf:" opt; do
          _usage_cmd
       ;;
       s )
-         sect="$OPTARG"
+         section="$OPTARG"
       ;;
       q )
          quiet=yes
@@ -379,7 +357,9 @@ fi
 
 shift $((OPTIND -1))
 infile="$1"
+outfile="$infile"
+normfile="$(mktemp)"
+pfile="$(mktemp)"
+conffile="$(mktemp)"
 
-cmd_args=("$infile" "$sect" "${cmd_args[@]}" "$quiet" "$force" "$smbformat")
-
-$cmd "${cmd_args[@]}"
+$cmd "$infile"

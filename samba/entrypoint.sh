@@ -24,45 +24,45 @@ new() {
 }
 
 add_public () {
-    local pathend=$(echo $PUBLIC_SHARENAME | tr '[:upper:]' '[:lower:]')
+    local pathend=$(echo "$PUBLIC_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
-    conf-utils setvar -y -q -s $GLOBAL_SHARENAME -n "follow symlinks" -a yes $SMB_CONF
-    conf-utils setvar -y -q -s $GLOBAL_SHARENAME -n "wide links" -a yes $SMB_CONF
+    conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "follow symlinks" -a "yes" $SMBCONF
+    conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "wide links" -a "yes" "$SMBCONF"
 
-    conf-utils add_section -y -q -s $PUBLIC_SHARENAME $SMB_CONF
+    conf-utils add_section -y -q -s "$PUBLIC_SHARENAME" "$SMBCONF"
 
-    conf-utils setvar -y -q -s $PUBLIC_SHARENAME -n "path" -a "$smbpath" $SMB_CONF
-    conf-utils setvar -y -q -s $PUBLIC_SHARENAME -n "comment" -a "Public" $SMB_CONF
-    conf-utils setvar -y -q -s $PUBLIC_SHARENAME -n "guest ok" -a yes $SMB_CONF
-    conf-utils setvar -y -q -s $PUBLIC_SHARENAME -n "writeable" -a yes -f pretty $SMB_CONF
+    conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
+    conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "comment" -a "Public" "$SMBCONF"
+    conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "guest ok" -a "yes" "$SMBCONF"
+    conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "writeable" -a "yes" -f "pretty" "$SMBCONF"
 }
 
 add_users () {
-    local pathend=$(echo $USERS_SHARENAME | tr '[:upper:]' '[:lower:]')
+    local pathend=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
-    conf-utils add_section -y -q -s $USERS_SHARENAME $SMB_CONF
+    conf-utils add_section -y -q -s "$USERS_SHARENAME" "$SMBCONF"
 
-    conf-utils setvar -y -q -s $USERS_SHARENAME -n "path" -a "$smbpath" $SMB_CONF
-    conf-utils setvar -y -q -s $USERS_SHARENAME -n "comment" -a "Users" $SMB_CONF
-    conf-utils setvar -y -q -s $USERS_SHARENAME -n "valid users" -a "$USERS_VALIDUSERS" $SMB_CONF
-    conf-utils setvar -y -q -s $USERS_SHARENAME -n "writeable" -a yes -f pretty $SMB_CONF
+    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
+    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "comment" -a "Users" "$SMBCONF"
+    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "valid users" -a "$USERS_VALIDUSERS" "$SMBCONF"
+    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "writeable" -a yes -f pretty "$SMBCONF"
 }
 add_timemachine () {
-    local pathend=$(echo $TIMEMACHINE_SHARENAME | tr '[:upper:]' '[:lower:]')
+    local pathend=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
-    # conf-utils setvar -y -q -s $GLOBAL_SHARENAME -n "vfs objects" -a "catia fruit streams_xattr" $SMB_CONF
-    conf-utils setvar -y -q -s $GLOBAL_SHARENAME -n "fruit:model" -a "RackMac" $SMB_CONF
+    conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "vfs objects" -a "catia fruit streams_xattr" "$SMB_CONF"
+    conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "fruit:model" -a "RackMac" "$SMBCONF"
 
-    conf-utils add_section -y -q -s $TIMEMACHINE_SHARENAME $SMB_CONF
+    conf-utils add_section -y -q -s "$TIMEMACHINE_SHARENAME" "$SMBCONF"
 
-    conf-utils setvar -y -q -s $TIMEMACHINE_SHARENAME -n "path" -a "$smbpath" $SMB_CONF
-    conf-utils setvar -y -q -s $TIMEMACHINE_SHARENAME -n "comment" -a "TimeMachine" $SMB_CONF
-    conf-utils setvar -y -q -s $TIMEMACHINE_SHARENAME -n "writeable" -a yes $SMB_CONF
-    conf-utils setvar -y -q -s $TIMEMACHINE_SHARENAME -n "valid users" -a "$TIMEMACHINE_VALIDUSERS" $SMB_CONF
-    conf-utils setvar -y -q -s $TIMEMACHINE_SHARENAME -n "fruit:time machine" -a "yes" -f pretty $SMB_CONF
+    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
+    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "comment" -a "TimeMachine" "$SMBCONF"
+    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "writeable" -a yes "$SMBCONF"
+    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "valid users" -a "$TIMEMACHINE_VALIDUSERS" "$SMBCONF"
+    conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine" -a "yes" -f pretty "$SMBCONF"
 }
 
 while getopts ":PUTn:u:" opt; do
@@ -89,11 +89,5 @@ while getopts ":PUTn:u:" opt; do
 done
 shift $((OPTIND -1))
 
-cat /etc/samba/smb.conf
-
-# ionice -c 3 dbus-daemon --system --nofork --nosyslog
-# ionice -c 3 avahi-daemon
 ionice -c 3 nmbd -D
 exec ionice -c 3 smbd -FS --no-process-group
-# exec /usr/sbin/nmbd --foreground --no-process-group --log-stdout
-# exec /usr/sbin/smbd --no-process-group --log-stdout --foreground
