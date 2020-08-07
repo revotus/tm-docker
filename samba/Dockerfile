@@ -18,8 +18,8 @@ rm /etc/avahi/services/*.service
 
 RUN mkdir /srv/shares
 
-RUN addgroup -S smb && \
-    adduser -D -H -S -G smb -h /tmp -s /usr/nologin -g "Samba User" smbuser
+RUN addgroup -S --gid 6969 smb && \
+    adduser -D -H -S -G smb -h /tmp -s /usr/nologin -g "Samba User" -u 6969 smbuser
 
 
 # USER smbuser:smb
