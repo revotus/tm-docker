@@ -30,7 +30,7 @@ add_public () {
     # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "follow symlinks" -a "yes" $SMBCONF
     # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "wide links" -a "yes" "$SMBCONF"
 
-    conf-utils add_section -y -q -s "$PUBLIC_SHARENAME" "$SMBCONF"
+    conf-utils add_section -y -q -s "$PUBLIC_SHARENAME" -f "pretty" "$SMBCONF"
 
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "comment" -a "Public" "$SMBCONF"
