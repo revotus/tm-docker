@@ -64,8 +64,8 @@ add_timemachine () {
 
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "comment" -a "TimeMachine" "$SMBCONF"
-    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "writeable" -a yes "$SMBCONF"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "valid users" -a "$TIMEMACHINE_VALIDUSERS" "$SMBCONF"
+    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "writeable" -a yes "$SMBCONF"
     conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine" -a "yes" -f pretty "$SMBCONF"
 }
 
@@ -73,7 +73,7 @@ while getopts ":u:PUTn:" opt; do
     case "$opt" in
         u )
             user="$OPTARG"
-            adduser -D -H -h /tmp -s /usr/nologin "$user"
+            adduser -D -H "$user"
             echo -e "$buttass\nbuttass" | smbpasswd -s -a "$user"
         ;;
         P )
