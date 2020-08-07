@@ -82,8 +82,8 @@ while getopts ":u:PUTn:" opt; do
             user="$OPTARG"
             adduser -D -H "$user"
             echo -e "buttass\nbuttass" | smbpasswd -s -a "$user"
-            ./create_user_share.sh "$user"
-            ./create_user_tm.sh "$user"
+            create_user_share.sh "$user"
+            create_user_tm.sh "$user"
             echo $user
         ;;
         P )
