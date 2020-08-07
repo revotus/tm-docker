@@ -91,8 +91,8 @@ shift $((OPTIND -1))
 
 cat /etc/samba/smb.conf
 
-ionice -c 3 dbus-daemon --system --nofork --nosyslog
-ionice -c 3 avahi-daemon
+# ionice -c 3 dbus-daemon --system --nofork --nosyslog
+# ionice -c 3 avahi-daemon
 ionice -c 3 nmbd -D
 exec ionice -c 3 smbd -FS --no-process-group
 # exec /usr/sbin/nmbd --foreground --no-process-group --log-stdout
