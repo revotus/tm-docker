@@ -27,8 +27,8 @@ add_public () {
     local pathend=$(echo "$PUBLIC_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
-    conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "follow symlinks" -a "yes" $SMBCONF
-    conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "wide links" -a "yes" "$SMBCONF"
+    # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "follow symlinks" -a "yes" $SMBCONF
+    # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "wide links" -a "yes" "$SMBCONF"
 
     conf-utils add_section -y -q -s "$PUBLIC_SHARENAME" "$SMBCONF"
 
