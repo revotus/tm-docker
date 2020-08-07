@@ -39,8 +39,8 @@ add_public () {
 }
 
 add_users () {
-    addgroup shares
-    adduser "$user" shares
+    # addgroup shares
+    # adduser "$user" shares
     local pathend=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
@@ -52,8 +52,9 @@ add_users () {
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "writeable" -a yes -f pretty "$SMBCONF"
 }
 add_timemachine () {
-    addgroup timemachine
-    adduser "$user" timemachine
+    # addgroup timemachine
+    echo $user
+    # adduser $user timemachine
     local pathend=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
@@ -75,6 +76,7 @@ while getopts ":u:PUTn:" opt; do
             user="$OPTARG"
             adduser -D -H "$user"
             echo -e "buttass\nbuttass" | smbpasswd -s -a "$user"
+            echo $user
         ;;
         P )
             add_public
