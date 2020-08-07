@@ -51,8 +51,8 @@ add_users () {
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "comment" -a "Users" "$SMBCONF"
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "valid users" -a "$USERS_VALIDUSERS" "$SMBCONF"
-    conf-utils setvar -y -s "$USERS_SHARENAME" -n "writeable" -a "yes" -f "pretty" "$SMBCONF"
-    # conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_share.sh %U" -f "pretty" "$SMBCONF"
+    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "writeable" -a "yes" -f "pretty" "$SMBCONF"
+    conf-utils setvar -y -s "$USERS_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_share.sh %U" -f "pretty" "$SMBCONF"
 }
 add_timemachine () {
     addgroup timemachine
@@ -72,8 +72,8 @@ add_timemachine () {
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "writeable" -a "yes" "$SMBCONF"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine" -a "yes" "$SMBCONF"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "veto files" -a "/._*/.DS_Store/" "$SMBCONF"
-    conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "delete veto files" -a "yes" -f "pretty" "$SMBCONF"
-    # conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_tm.sh %U" -f "pretty" "$SMBCONF"
+    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "delete veto files" -a "yes" -f "pretty" "$SMBCONF"
+    conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_tm.sh %U" -f "pretty" "$SMBCONF"
 }
 
 while getopts ":u:PUTn:" opt; do
@@ -82,8 +82,8 @@ while getopts ":u:PUTn:" opt; do
             user="$OPTARG"
             adduser -D -H "$user"
             echo -e "buttass\nbuttass" | smbpasswd -s -a "$user"
-            create_user_share.sh "$user"
-            create_user_tm.sh "$user"
+            # ./create_user_share.sh "$user"
+            # create_user_tm.sh "$user"
             echo $user
         ;;
         P )
@@ -105,9 +105,9 @@ while getopts ":u:PUTn:" opt; do
 done
 shift $((OPTIND -1))
 
-find /srv/shares -type d ! -perm 775 -exec chmod 775 {} \;
-find /srv/shares -type f ! -perm 0664 -exec chmod 0664 {} \;
-chown -Rh smbuser:smb /srv/shares
+find "$SMBVOL_BASE" -type d ! -perm 775 -exec chmod 775 {} \;
+find "$SMBVOL_BASE" -type f ! -perm 0664 -exec chmod 0664 {} \;
+chown -Rh smbuser:smb "$SMBVOL_BASE"
 
 ionice -c 3 nmbd -D
 exec ionice -c 3 smbd -FS --no-process-group </dev/null

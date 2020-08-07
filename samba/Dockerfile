@@ -12,11 +12,12 @@ RUN apk update && \
         # avahi-tools \
         # avahi-compat-libdns_sd \
         # dbus \
+        zfs \
         bash && \
 rm /etc/samba/smb.conf
 #rm /etc/avahi/services/*.service
 
-RUN mkdir /srv/shares
+# RUN mkdir /srv/shares
 
 RUN addgroup -S --gid 6969 smb && \
     adduser -D -H -S -G smb -h /tmp -s /usr/nologin -g "Samba User" -u 6969 smbuser
