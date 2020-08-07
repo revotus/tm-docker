@@ -139,7 +139,6 @@ getvar () {
 setvar () {
    set -e
    local _infile="$1"
-   tmpfile=$(mktemp)
    local regvar=''
 
    _check_file "$_infile"
@@ -154,9 +153,10 @@ setvar () {
    varname=$(sed -E -e 's/([[:alnum:]]*)_+/\1 /g' <<< "$varname")
    regvar=$(sed -E -e 's/([[:alnum:]]*)[[:space:]]+/\1[[:space:]]*/g' <<< "$varname")
 
+   local tmpfile=$(mktemp)
    cat "$conffile" > "$tmpfile"
    awk -F'\n' -v RS='[' \
-      -v section=$section -v varname="$varname" -v varval=$varval -v regvar="$regvar" \
+      -v section="$section" -v varname="$varname" -v varval="$varval" -v regvar="$regvar" \
       '/.+/ {OFS="\n"
          print "["$1;
          for (i=2; i<NF; i++) {
