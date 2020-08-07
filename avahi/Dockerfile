@@ -7,13 +7,13 @@ RUN apk update && \
     apk add --no-cache \
         avahi \
         avahi-tools \
-        xmlstarlet \
+        # xmlstarlet \
         bash
 
 COPY ./entrypoint.sh /
 COPY ./avahi-daemon.conf /etc/avahi/avahi-daemon.conf
 COPY ./smb1.service /etc/avahi/services/smb.service
 
-VOLUME ["/var/run/dbus"]
+VOLUME ["/etc/avahi]
 
 ENTRYPOINT ["/entrypoint.sh"]

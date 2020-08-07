@@ -1,6 +1,7 @@
 #!/bin/bash
 
 _check_file () {
+   set -e
    local file="$1"
    # Check if $infile is null or unset
    if [ -z "$file" ]; then
@@ -20,6 +21,7 @@ _check_file () {
 }
 
 _normalize () {
+   set -e
    local file="$1"
 
    # Remove blank/space only lines
@@ -44,6 +46,7 @@ _normalize () {
 }
 
 _prettyfi () {
+   set -e
    local file="$1"
 
    sed -Ei 's/="(.*)"/=\1/' "$file"
@@ -55,6 +58,7 @@ _prettyfi () {
 }
 
 _write_conf () {
+   set -e
    local write="$force"
 
    if [ "$smbformat" == "norm" ]; then
@@ -100,24 +104,22 @@ _write_conf () {
 
 reformat () {
    set -e
-   local _infile="$1"
 
-   _check_file "$_infile"
-   cat "$_infile" > "$conffile"
+   # _check_file "$infile"
+   # cat "$infile" > "$conffile"
 
-   _normalize "$conffile" > /dev/null
+   # _normalize "$conffile" > /dev/null
 
    _write_conf
 }
 
 add_section () {
    set -e
-   local _infile="$1"
 
-   _check_file "$_infile"
-   cat "$_infile" > "$conffile"
+   # _check_file "$infile"
+   # cat "$infile" > "$conffile"
 
-   _normalize "$conffile" > /dev/null
+   # _normalize "$conffile" > /dev/null
 
    grep -qxF "[$section]" "$conffile" || printf "\n[$section]" >> "$conffile"
 
@@ -125,12 +127,10 @@ add_section () {
 }
 
 getvar () {
-   local section="$1"
-   local var="${2//[[:space:]]/_}"
-   local infile="$3"
+   local var="${varname//[[:space:]]/_}"
    local bashvar=${section}__${var}
 
-   normalize $infile "no" "yes"
+   # _normalize $infile "no" "yes"
    _export_vars
 
    echo ${!bashvar}
@@ -138,20 +138,20 @@ getvar () {
 
 setvar () {
    set -e
-   local _infile="$1"
    local regvar=''
 
-   _check_file "$_infile"
-   cat "$_infile" > "$conffile"
+   # _check_file "$_infile"
+   # cat "$_infile" > "$conffile"
 
-   _normalize "$conffile" > /dev/null
+   # _normalize "$conffile" > /dev/null
 
    # Check section exists
-   grep -qxF "[$section]" "$conffile" || (echo "Section not found: '$section'"; exit 69)
+   grep -qxF "[$section]" "$conffile" || (echo "Section not found: '$section'" && exit 69)
 
    # Norm var and prep for regex
    varname=$(sed -E -e 's/([[:alnum:]]*)_+/\1 /g' <<< "$varname")
-   regvar=$(sed -E -e 's/([[:alnum:]]*)[[:space:]]+/\1[[:space:]]*/g' <<< "$varname")
+   regvar="$varname"
+   # regvar=$(sed -E -e 's/([[:alnum:]]*)[[:space:]]+/\1[[:space:]]*/g' <<< "$varname")
 
    local tmpfile=$(mktemp)
    cat "$conffile" > "$tmpfile"
@@ -253,7 +253,6 @@ Usage: $prog [-opts] $cmd [-cmd_opts]
    exit $RC
 }
 
-echo "$@"
 while getopts ":h" opt; do
    case ${opt} in
       h )
@@ -362,4 +361,8 @@ normfile="$(mktemp)"
 pfile="$(mktemp)"
 conffile="$(mktemp)"
 
-$cmd "$infile"
+_check_file "$infile"
+cat "$infile" > "$conffile"
+_normalize "$conffile" > /dev/null
+
+$cmd

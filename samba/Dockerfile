@@ -27,7 +27,7 @@ RUN addgroup -S --gid 6969 smb && \
 COPY ./entrypoint.sh /
 COPY ./conf-utils /usr/bin/
 COPY ./smb_default.conf /etc/samba/smb.conf
-COPY ./smb.service /etc/avahi/services/smb.service
+# COPY ./smb.service /etc/avahi/services/smb.service
 
 EXPOSE 137/udp 138/udp 139 445
 
