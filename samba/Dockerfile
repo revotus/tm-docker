@@ -12,7 +12,7 @@ RUN apk update && \
         # avahi-tools \
         # avahi-compat-libdns_sd \
         # dbus \
-        bash && \
+        bash
 # rm /etc/avahi/services/*.service
 
 # RUN mkdir /srv/shares
