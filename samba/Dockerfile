@@ -8,10 +8,10 @@ RUN apk update && \
         samba \
         # samba-common-tools \
         # samba-server \
-        avahi \
+        # avahi \
         # avahi-tools \
         # avahi-compat-libdns_sd \
-        dbus \
+        # dbus \
         bash && \
 rm /etc/avahi/services/*.service
 
