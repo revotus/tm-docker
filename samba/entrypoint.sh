@@ -74,7 +74,7 @@ while getopts ":u:PUTn:" opt; do
         u )
             user="$OPTARG"
             adduser -D -H "$user"
-            echo -e "$buttass\nbuttass" | smbpasswd -s -a "$user"
+            echo -e "buttass\nbuttass" | smbpasswd -s -a "$user"
         ;;
         P )
             add_public
