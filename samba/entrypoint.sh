@@ -53,7 +53,7 @@ add_timemachine () {
     local pathend=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
-    conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "vfs objects" -a "catia fruit streams_xattr" "$SMB_CONF"
+    conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "vfs objects" -a "catia fruit streams_xattr" "$SMBCONF"
     conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "fruit:model" -a "RackMac" "$SMBCONF"
 
     conf-utils add_section -y -q -s "$TIMEMACHINE_SHARENAME" "$SMBCONF"
@@ -90,4 +90,4 @@ done
 shift $((OPTIND -1))
 
 ionice -c 3 nmbd -D
-exec ionice -c 3 smbd -FS --no-process-group
+exec ionice -c 3 smbd -FS --no-process-group </dev/null
