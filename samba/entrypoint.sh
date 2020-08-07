@@ -41,6 +41,7 @@ add_public () {
 add_users () {
     addgroup shares
     adduser "$user" shares
+
     local pathend=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
@@ -54,6 +55,7 @@ add_users () {
 add_timemachine () {
     addgroup timemachine
     adduser $user timemachine
+
     local pathend=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
