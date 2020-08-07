@@ -53,7 +53,6 @@ add_users () {
 }
 add_timemachine () {
     addgroup timemachine
-    echo $user
     adduser $user timemachine
     local pathend=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
