@@ -39,6 +39,8 @@ add_public () {
 }
 
 add_users () {
+    addgroup shares
+    adduser "$user" shares
     local pathend=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
@@ -50,6 +52,8 @@ add_users () {
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "writeable" -a yes -f pretty "$SMBCONF"
 }
 add_timemachine () {
+    addgroup timemachine
+    adduser "$user" timemachine
     local pathend=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_BASE/$pathend"
 
@@ -65,8 +69,13 @@ add_timemachine () {
     conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine" -a "yes" -f pretty "$SMBCONF"
 }
 
-while getopts ":PUTn:u:" opt; do
+while getopts ":u:PUTn:" opt; do
     case "$opt" in
+        u )
+            user="$OPTARG"
+            adduser -D -H -h /tmp -s /usr/nologin "$user"
+            echo -e "$buttass\nbuttass" | smbpasswd -s -a "$user"
+        ;;
         P )
             add_public
         ;;
@@ -78,9 +87,6 @@ while getopts ":PUTn:u:" opt; do
         ;;
         n )
             sharename=$(sed 's/^[[:space:]]+(.*)[[:space:]]+$/\1/' <<< $OPTARG)
-        ;;
-        u )
-            shareusers=$(sed 's/^/"/; s/$/"/' <<< $OPTARG)
         ;;
         "?")
             echo "Unknown option: -$OPTARG"; usage 1
