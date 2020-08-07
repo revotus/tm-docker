@@ -8,12 +8,12 @@ RUN apk update && \
         samba \
         # samba-common-tools \
         # samba-server \
-        # avahi \
+        avahi \
         # avahi-tools \
         # avahi-compat-libdns_sd \
-        # dbus \
-        bash
-# rm /etc/avahi/services/*.service
+        dbus \
+        bash && \
+rm /etc/avahi/services/*.service
 
 # RUN mkdir /srv/shares
 
