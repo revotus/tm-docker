@@ -49,7 +49,7 @@ add_users () {
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "comment" -a "Users" "$SMBCONF"
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "valid users" -a "$USERS_VALIDUSERS" "$SMBCONF"
-    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "writeable" -a yes -f pretty "$SMBCONF"
+    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "writeable" -a "yes" -f "pretty" "$SMBCONF"
 }
 add_timemachine () {
     # addgroup timemachine
@@ -66,8 +66,8 @@ add_timemachine () {
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "comment" -a "TimeMachine" "$SMBCONF"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "valid users" -a "$TIMEMACHINE_VALIDUSERS" "$SMBCONF"
-    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "writeable" -a yes "$SMBCONF"
-    conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine" -a "yes" -f pretty "$SMBCONF"
+    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "writeable" -a "yes" "$SMBCONF"
+    conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine" -a "yes" -f "pretty" "$SMBCONF"
 }
 
 while getopts ":u:PUTn:" opt; do
