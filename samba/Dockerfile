@@ -13,6 +13,7 @@ RUN apk update && \
         # avahi-compat-libdns_sd \
         dbus \
         bash && \
+rm /etc/samba/smb.conf && \
 rm /etc/avahi/services/*.service
 
 RUN mkdir /srv/shares
@@ -34,4 +35,4 @@ VOLUME ["/etc/samba", "/var/log/samba", "/srv/shares"]
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-CMD ["-u", "motus", -P", "-U", "-T"]
+CMD ["-u", "motus", "-P", "-U", "-T"]
