@@ -44,21 +44,22 @@ add_users () {
     adduser "$user" shares
 
     local pathend=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
-    local smbpath="$SMBVOL_BASE/$pathend"
+    local smbpath="$SMBVOL_BASE/$pathendi/%U"
 
     conf-utils add_section -y -q -s "$USERS_SHARENAME" "$SMBCONF"
 
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "path" -a "$smbpath" "$SMBCONF"
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "comment" -a "Users" "$SMBCONF"
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "valid users" -a "$USERS_VALIDUSERS" "$SMBCONF"
-    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "writeable" -a "yes" -f "pretty" "$SMBCONF"
+    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "writeable" -a "yes" "$SMBCONF"
+    conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_share.sh %U" -f "pretty" "$SMBCONF"
 }
 add_timemachine () {
     addgroup timemachine
     adduser $user timemachine
 
     local pathend=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
-    local smbpath="$SMBVOL_BASE/$pathend"
+    local smbpath="$SMBVOL_BASE/$pathend/%U"
 
     conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "vfs objects" -a "catia fruit streams_xattr" "$SMBCONF"
     conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "fruit:model" -a "RackMac" "$SMBCONF"
@@ -70,7 +71,7 @@ add_timemachine () {
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "valid users" -a "$TIMEMACHINE_VALIDUSERS" "$SMBCONF"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "writeable" -a "yes" "$SMBCONF"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine" -a "yes" "$SMBCONF"
-    conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_time_machine.sh %U" -f "pretty" "$SMBCONF"
+    conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_tm.sh %U" -f "pretty" "$SMBCONF"
 }
 
 while getopts ":u:PUTn:" opt; do
