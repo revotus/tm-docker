@@ -89,5 +89,8 @@ while getopts ":PUTn:u:" opt; do
 done
 shift $((OPTIND -1))
 
+chown -R smbuser:smb /srv/shares && \
+chmod -R 777 /srv/shares
+
 ionice -c 3 nmbd -D
 exec ionice -c 3 smbd -FS --no-process-group </dev/null

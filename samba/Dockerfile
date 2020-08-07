@@ -18,9 +18,8 @@ rm /etc/avahi/services/*.service
 RUN mkdir /srv/shares
 
 RUN addgroup -S smb && \
-    adduser -D -H -S -G smb -h /tmp -s /usr/nologin -g "Samba User" smbuser && \
-    chown -R smbuser:smb /srv/shares && \
-    chmod -R 777 /srv/shares
+    adduser -D -H -S -G smb -h /tmp -s /usr/nologin -g "Samba User" smbuser
+
 
 # USER smbuser:smb
 
