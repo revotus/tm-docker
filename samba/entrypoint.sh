@@ -57,7 +57,7 @@ add_timemachine () {
     local smbpath="$SMBVOL_PATH_CONTAINER/$dirname/%U"
 
     conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "vfs objects" -a "catia fruit streams_xattr" "$SMB_CONFFILE"
-    conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "fruit:model" -a "TimeCapsule8,119" "$SMB_CONFFILE"
+    conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "fruit:model" -a "TimeCapsule6,106" "$SMB_CONFFILE"
 
     conf-utils add_section -y -q -s "$TIMEMACHINE_SHARENAME" "$SMB_CONFFILE"
 
