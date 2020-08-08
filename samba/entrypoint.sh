@@ -149,5 +149,5 @@ shift $((OPTIND -1))
 # find "$SMBVOL_PATH_CONTAINER" -type f ! -perm 0664 -exec chmod 0664 {} \;
 # chown -Rh smbuser:smb "$SMBVOL_PATH_CONTAINER"
 
-ionice -c 3 nmbd -D
+# ionice -c 3 nmbd -D
 exec ionice -c 3 smbd -FS --no-process-group </dev/null
