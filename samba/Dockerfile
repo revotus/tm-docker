@@ -39,7 +39,7 @@ COPY ./create_user_tm.sh /usr/bin/
 COPY ./smb.service /etc/avahi/services/smb.service
 
 # EXPOSE 137/udp 138/udp 139 445
-EXPOSE 137/udp 138/udp 445
+EXPOSE 445
 
 VOLUME ["/etc/samba", "/var/log/samba", "/srv/shares"]
 
