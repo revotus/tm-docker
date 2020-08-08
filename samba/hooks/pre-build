@@ -1,3 +1,9 @@
 #!/usr/bin/env bash
 
-../create_user_share.sh
+DOCKER_REPO=revotus:samba
+
+snap install yq
+
+users=( $(/snap/bin/yq read '*.name') )
+
+../create_user_share.sh "${users[@]}"

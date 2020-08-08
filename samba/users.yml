@@ -4,3 +4,9 @@ motus:
   groups:
     - timemachine
     - shares
+fotus:
+  name: fotus
+  passwd: buttass
+  groups:
+    - timemachine
+    - shares
