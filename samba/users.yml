@@ -1,6 +1,6 @@
-- motus:
-    name: motus
-    passwd: buttass
-    groups:
-      - timemachine
-      - shares
+motus:
+  name: motus
+  passwd: buttass
+  groups:
+    - timemachine
+    - shares
