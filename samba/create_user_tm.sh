@@ -1,8 +1,10 @@
 #!/bin/bash
 
-pathcomp=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
-if [ ! -e "$SMBVOL_BASE/$pathcomp/$1" ]; then
-    mkdir "$SMBVOL_BASE/$pathcomp/$1"
-    chown -R smbuser:smb "$SMBVOL_BASE/$pathcomp/$1"
+username="$1"
+
+tm_dirname=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
+if [ ! -d "$SMBVOL_CONTAINER/$tm_dirname/$username" ]; then
+    mkdir "$SMBVOL_CONTAINER/$tm_dirname/$username"
+    chown -R $SMBUID:$SMBGID "$SMBVOL_CONTAINER/$tm_dirname/$username"
     # chmod -R 700 $1 /tank/time_machine/$1
 fi

@@ -1,13 +1,12 @@
-users:
-  - motus:
-      name: motus
-      passwd: buttass
-      groups:
-        - timemachine
-        - shares
-  - fotus:
-      name: fotus
-      passwd: buttass
-      groups:
-        - timemachine
-        - shares
+-
+  name: motus
+  passwd: buttass
+  groups:
+    - timemachine
+    - shares
+-
+  name: fotus
+  passwd: buttass
+  groups:
+    - timemachine
+    - shares

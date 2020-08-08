@@ -1,11 +1,15 @@
 #!/bin/bash
 
-user_pathcomp=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
-public_pathcomp=$(echo "$PUBLIC_SHARENAME" | tr '[:upper:]' '[:lower:]')
-if [ ! -e "$SMBVOL_BASE/$user_pathcomp/$1" ]; then
-    zfs create "$SMBVOL_BASE/$user_pathcomp/$1"
-    chown -R smbuser:smb "$SMBVOL_BASE/$user_pathcomp/$1"
+username="$1"
+
+users_dirname=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
+public_dirname=$(echo "$PUBLIC_SHARENAME" | tr '[:upper:]' '[:lower:]')
+smbvol_host_dirname=${SMBVOL_HOST#/}
+
+if [ ! -d "$SMBVOL_HOST/$users_dirname/$username" ]; then
+    zfs create "$smbvol_host_dirname/$users_dirname/$username"
+    chown -R $SMBUID:$SMBGID "$SMBVOL_HOST/$users_dirname/$username"
     # chmod -R 700 $1 /tank/user/$1
 
-    ln -s "$SMBVOL_BASE/$public_pathcomp" "$SMBVOL_BASE/$user_pathcomp/$1/Public"
+    ln -s "$SMBVOL_HOST/$public_dirname" "$SMBVOL_HOST/$users_dirname/$username/$PUBLIC_SHARENAME"
 fi

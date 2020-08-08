@@ -13,8 +13,12 @@ RUN apk update && \
         # avahi-compat-libdns_sd \
         # dbus \
         zfs \
-        bash && \
-rm /etc/samba/smb.conf
+        bash
+RUN wget $(curl -s https://api.github.com/repos/mikefarah/yq/releases/latest \
+        | grep browser_download_url | grep linux_arm64 | cut -d '"' -f 4) \
+        -O /usr/bin/yq && \
+    chmod +x /usr/bin/yq
+RUN rm /etc/samba/smb.conf
 #rm /etc/avahi/services/*.service
 
 # RUN mkdir /srv/shares
