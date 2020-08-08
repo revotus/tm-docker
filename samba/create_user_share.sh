@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./.env
+source .env
 username="$1"
 
 users_dirname=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
