@@ -2,8 +2,11 @@
 
 DOCKER_REPO=revotus:samba
 
-snap install yq
+cmd=$(which yq)
 
-users=( $(/snap/bin/yq read '*.name') )
+[ $cmd ] || snap install yq
 
-../create_user_share.sh "${users[@]}"
+users=( $($cmd read 'users.(*.groups[*]==shares).*.name') )
+echo $users
+
+# ../create_user_share.sh "${users[@]}"

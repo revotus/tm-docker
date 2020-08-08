@@ -1,3 +1,4 @@
 #!/bin/bash
 
+exit
 docker system prune -af && docker build -t "$IMAGE_NAME" .
