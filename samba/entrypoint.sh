@@ -36,17 +36,10 @@ add_public () {
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "comment" -a "$PUBLIC_SHARENAME" "$SMB_CONFFILE"
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "guest ok" -a "yes" "$SMB_CONFFILE"
     conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "writeable" -a "yes" "$SMB_CONFFILE"
-    conf-utils setvar -y -s "$PUBLIC_SHARENAME" -n "browseable" -a "yes" -f "pretty" "$SMB_CONFFILE"
+    conf-utils setvar -y -q -s "$PUBLIC_SHARENAME" -n "browseable" -a "yes" -f "pretty" "$SMB_CONFFILE"
 }
 
 add_users () {
-    [ "${share_users[@]}" ] || users
-    [ grep -q "^$SHARES_GROUP:" /etc/group ] || addgroup -S "$SHARES_GROUP"
-
-    for name in "${shareusers[@]}"; do
-        adduser "$name" "$SHARES_GROUP"
-    done
-
     local dirname=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_PATH_CONTAINER/$dirname/%U"
 
@@ -60,13 +53,6 @@ add_users () {
 }
 
 add_timemachine () {
-    local users="$1"
-
-    addgroup -S "$TIMEMACHINE_GROUP"
-    for name in "${tmusers[@]}"; do
-        adduser "$name" "$TIMEMACHINE_GROUP"
-    done
-
     local dirname=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_PATH_CONTAINER/$dirname/%U"
 
@@ -94,8 +80,8 @@ user () {
     adduser -D -H "$name"
     echo -e "$passwd\n$passwd" | smbpasswd -s -a "$name"
 
-    [ grep -q "^$SHARES_GROUP:" /etc/group ] || addgroup -S "$SHARES_GROUP"
-    [ grep -q "^$TIMEMACHINE_GROUP:" /etc/group ] || addgroup -S "$TIMEMACHINE_GROUP"
+    grep -q "^$SHARES_GROUP:" /etc/group || addgroup -S "$SHARES_GROUP"
+    grep -q "^$TIMEMACHINE_GROUP:" /etc/group || addgroup -S "$TIMEMACHINE_GROUP"
 
     [ "$share" == "no" ] || adduser "$name" "$SHARES_GROUP"
     [ "$tm" == "no" ] || adduser "$name" "$TIMEMACHINE_GROUP"
@@ -103,15 +89,16 @@ user () {
 
 userfile () {
     len=$(yq read -l $USERFILE)
-    for (( i=0; i<$len; i++ )); do
+    for (( i=0; i<"$len"; i++ )); do
 
         name=$(yq read "$USERFILE" "[$i].name")
         passwd=$(yq read "$USERFILE" "[$i].passwd")
         user "$name" "$passwd"
+    done
 }
 
 user_opts="U:u:"
-share_opts="PUT"
+share_opts="PST"
 
 while getopts ":$user_opts" opt; do
     case "$opt" in
@@ -122,7 +109,7 @@ while getopts ":$user_opts" opt; do
             user $(sed 's/^/"/; s/$/"/; s/;/" "/g' <<< $OPTARG)
         ;;
         "?")
-            if $(echo share_opts | grep -qv "$OPTARG"); then
+            if $(echo "$share_opts" | grep -qv $OPTARG); then
                 echo "Unknown option: -$OPTARG"; usage 1
             fi
         ;;
@@ -131,7 +118,8 @@ while getopts ":$user_opts" opt; do
         ;;
     esac
 done
-shift $((OPTIND -1))
+# shift $((OPTIND -1))
+OPTIND=1
 
 userfile
 
@@ -140,14 +128,18 @@ while getopts ":$share_opts" opt; do
         P )
             add_public
         ;;
-        U )
+        S )
             add_users
         ;;
         T )
             add_timemachine
         ;;
         "?")
-            echo "Unknown option: -$OPTARG"; usage 1
+            if $(echo "$user_opts" | grep -qv $OPTARG); then
+                echo "Unknown option: -$OPTARG"; usage 1
+            else
+                OPTIND=$((OPTIND +1))
+            fi
         ;;
     esac
 done

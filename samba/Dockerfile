@@ -12,7 +12,6 @@ RUN apk update && \
         # avahi-tools \
         # avahi-compat-libdns_sd \
         # dbus \
-        zfs \
         bash \
         curl \
         wget
@@ -31,11 +30,12 @@ RUN addgroup -S --gid 6969 smb && \
 
 # USER smbuser:smb
 
+COPY ./users.yml /
 COPY ./entrypoint.sh /
 COPY ./conf-utils /usr/bin/
 COPY ./smb_default.conf /etc/samba/smb.conf
 COPY ./create_user_tm.sh /usr/bin/
-COPY ./create_user_share.sh /usr/bin/
+# COPY ./create_user_share.sh /usr/bin/
 COPY ./smb.service /etc/avahi/services/smb.service
 
 EXPOSE 137/udp 138/udp 445
@@ -44,4 +44,5 @@ VOLUME ["/etc/samba", "/var/log/samba", "/srv/shares"]
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-CMD ["-u", "motus", "-P", "-U", "-T"]
+# CMD ["-u", "motus", "-P", "-U", "-T"]
+CMD ["-P", "-S", "-T"]
