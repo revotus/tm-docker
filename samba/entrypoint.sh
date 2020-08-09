@@ -66,7 +66,7 @@ add_timemachine () {
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "writeable" -a "yes" "$SMB_CONFFILE"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine" -a "yes" "$SMB_CONFFILE"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine max size" -a "1T" "$SMB_CONFFILE"
-    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:resource" -a "xattr" "$SMB_CONFFILE"
+    # conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:resource" -a "xattr" "$SMB_CONFFILE"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:metadata" -a "stream" "$SMB_CONFFILE"
     # conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "veto files" -a "/._*/.DS_Store/" "$SMB_CONFFILE"
     # conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "delete veto files" -a "yes" "$SMB_CONFFILE"
