@@ -10,3 +10,9 @@
   groups:
     - timemachine
     - shares
+-
+  name: salsmom
+  passwd: jenny6969
+  groups:
+    - timemachine
+    - shares
