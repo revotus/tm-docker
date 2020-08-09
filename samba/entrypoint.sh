@@ -28,7 +28,6 @@ add_public () {
     local smbpath="$SMBVOL_PATH_CONTAINER/$dirname"
 
     # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "follow symlinks" -a "yes" $SMB_CONFFILE
-    # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "wide links" -a "yes" "$SMB_CONFFILE"
 
     conf-utils add_section -y -q -s "$PUBLIC_SHARENAME" -f "pretty" "$SMB_CONFFILE"
 
@@ -66,6 +65,9 @@ add_timemachine () {
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "valid users" -a "@$TIMEMACHINE_GROUP" "$SMB_CONFFILE"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "writeable" -a "yes" "$SMB_CONFFILE"
     conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine" -a "yes" "$SMB_CONFFILE"
+    conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:time machine max size" -a "1T" "$SMB_CONFFILE"
+    # conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:resource" -a "xattr" "$SMB_CONFFILE"
+    # conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "fruit:metadata" -a "stream" "$SMB_CONFFILE"
     # conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "veto files" -a "/._*/.DS_Store/" "$SMB_CONFFILE"
     # conf-utils setvar -y -q -s "$TIMEMACHINE_SHARENAME" -n "delete veto files" -a "yes" "$SMB_CONFFILE"
     conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_tm.sh %U" -f "pretty" "$SMB_CONFFILE"
@@ -145,9 +147,9 @@ while getopts ":$share_opts" opt; do
 done
 shift $((OPTIND -1))
 
-# find "$SMBVOL_PATH_CONTAINER" -type d ! -perm 775 -exec chmod 775 {} \;
-# find "$SMBVOL_PATH_CONTAINER" -type f ! -perm 0664 -exec chmod 0664 {} \;
-# chown -Rh smbuser:smb "$SMBVOL_PATH_CONTAINER"
+find "$SMBVOL_PATH_CONTAINER" -type d ! -perm 775 -exec chmod 775 {} \;
+find "$SMBVOL_PATH_CONTAINER" -type f ! -perm 0664 -exec chmod 0664 {} \;
+chown -Rh "$SMB_UID:$SMB_GID" "$SMBVOL_PATH_CONTAINER"
 
 # ionice -c 3 nmbd -D
 exec ionice -c 3 smbd -FS --no-process-group </dev/null
