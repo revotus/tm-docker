@@ -12,8 +12,8 @@ public_path="$SMBVOL_PATH_HOST/$public_dirname"
 
 if [ ! -d  "$smb_path" ]; then
     zfs create "$zfs_path"
-    chown -R $SMB_UID:$SMB_GID "$smb_path"
-    # chmod -R 700 $1 /tank/user/$1
+    chown -R $username:$SMB_GID "$smb_path"
+    chmod -R 700 "$smb_path"
 
     ln -s  "$public_path" "$smb_path/$PUBLIC_SHARENAME"
 fi
