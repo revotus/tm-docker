@@ -41,7 +41,7 @@ COPY ./smb.service /etc/avahi/services/smb.service
 # EXPOSE 137/udp 138/udp 139 445
 EXPOSE 445
 
-VOLUME ["/etc/samba", "/var/log/samba", "/srv/shares"]
+VOLUME ["/etc/samba", "/var/log/samba", "/srv/shares", "/media"]
 
 ENTRYPOINT ["/entrypoint.sh"]
 
