@@ -75,7 +75,6 @@ add_timemachine () {
 
 add_volumio () {
 
-    exit
     local dirname=$(echo "$VOLUMIO_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local volumio_path="$MEDIA_PATH_CONTAINER/$dirname"
     echo $volumio_path
