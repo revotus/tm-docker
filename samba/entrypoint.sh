@@ -120,6 +120,9 @@ userfile () {
 user_opts="U:u:"
 share_opts="PSTV"
 
+echo $VOLUMIO_SHARENAME
+exit
+
 while getopts ":$user_opts" opt; do
     case "$opt" in
         U )
@@ -146,8 +149,6 @@ userfile
 while getopts ":$share_opts" opt; do
     case "$opt" in
         V )
-            echo $VOLUMIO_SHARENAME
-            exit
             add_volumio
         ;;
         P )
