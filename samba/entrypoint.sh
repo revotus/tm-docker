@@ -73,6 +73,22 @@ add_timemachine () {
     conf-utils setvar -y -s "$TIMEMACHINE_SHARENAME" -n "root preexec" -a "/usr/bin/create_user_tm.sh %U" -f "pretty" "$SMB_CONFFILE"
 }
 
+add_volumio () {
+
+    local dirname=$(echo "$VOLUMIO_SHARENAME" | tr '[:upper:]' '[:lower:]')
+    local volumio_path="$MEDIA_PATH_HOST/$dirname"
+
+    # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "follow symlinks" -a "yes" $SMB_CONFFILE
+
+    conf-utils add_section -y -q -s "$VOLUMIO_SHARENAME" -f "pretty" "$SMB_CONFFILE"
+
+    conf-utils setvar -y -q -s "$VOLUMIO_SHARENAME" -n "path" -a "$volumio_path" "$SMB_CONFFILE"
+    conf-utils setvar -y -q -s "$VOLUMIO_SHARENAME" -n "comment" -a "$VOLUMIO_SHARENAME" "$SMB_CONFFILE"
+    conf-utils setvar -y -q -s "$VOLUMIO_SHARENAME" -n "guest ok" -a "yes" "$SMB_CONFFILE"
+    conf-utils setvar -y -q -s "$VOLUMIO_SHARENAME" -n "writeable" -a "yes" "$SMB_CONFFILE"
+    conf-utils setvar -y -q -s "$VOLUMIO_SHARENAME" -n "browseable" -a "yes" -f "pretty" "$SMB_CONFFILE"
+}
+
 user () {
     local name="$1"
     local passwd="$2"
@@ -100,7 +116,7 @@ userfile () {
 }
 
 user_opts="U:u:"
-share_opts="PST"
+share_opts="PSTV"
 
 while getopts ":$user_opts" opt; do
     case "$opt" in
@@ -135,6 +151,9 @@ while getopts ":$share_opts" opt; do
         ;;
         T )
             add_timemachine
+        ;;
+        V )
+            add_volumio
         ;;
         "?")
             if $(echo "$user_opts" | grep -qv $OPTARG); then
