@@ -75,8 +75,10 @@ add_timemachine () {
 
 add_volumio () {
 
+    exit
     local dirname=$(echo "$VOLUMIO_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local volumio_path="$MEDIA_PATH_HOST/$dirname"
+    echo $volumio_path
 
     # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "follow symlinks" -a "yes" $SMB_CONFFILE
 
@@ -143,6 +145,11 @@ userfile
 
 while getopts ":$share_opts" opt; do
     case "$opt" in
+        V )
+            echo $VOLUMIO_SHARENAME
+            exit
+            add_volumio
+        ;;
         P )
             add_public
         ;;
@@ -151,9 +158,6 @@ while getopts ":$share_opts" opt; do
         ;;
         T )
             add_timemachine
-        ;;
-        V )
-            add_volumio
         ;;
         "?")
             if $(echo "$user_opts" | grep -qv $OPTARG); then
