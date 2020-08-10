@@ -77,7 +77,6 @@ add_volumio () {
 
     local dirname=$(echo "$VOLUMIO_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local volumio_path="$MEDIA_PATH_CONTAINER/$dirname"
-    echo $volumio_path
 
     # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "follow symlinks" -a "yes" $SMB_CONFFILE
 
@@ -170,6 +169,9 @@ shift $((OPTIND -1))
 find "$SMBVOL_PATH_CONTAINER" -type d ! -perm 775 -exec chmod 775 {} \;
 find "$SMBVOL_PATH_CONTAINER" -type f ! -perm 0664 -exec chmod 0664 {} \;
 chown -Rh "$SMB_UID:$SMB_GID" "$SMBVOL_PATH_CONTAINER"
+find "$MEDIA_PATH_CONTAINER" -type d ! -perm 775 -exec chmod 775 {} \;
+find "$MEDIA_PATH_CONTAINER" -type f ! -perm 0664 -exec chmod 0664 {} \;
+chown -Rh "$SMB_UID:$SMB_GID" "$MEDIA_PATH_CONTAINER"
 
 # ionice -c 3 nmbd -D
 exec ionice -c 3 smbd -FS --no-process-group </dev/null
