@@ -77,7 +77,7 @@ add_volumio () {
 
     exit
     local dirname=$(echo "$VOLUMIO_SHARENAME" | tr '[:upper:]' '[:lower:]')
-    local volumio_path="$MEDIA_PATH_HOST/$dirname"
+    local volumio_path="$MEDIA_PATH_CONTAINER/$dirname"
     echo $volumio_path
 
     # conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "follow symlinks" -a "yes" $SMB_CONFFILE
