@@ -88,7 +88,7 @@ add_volumio () {
     conf-utils setvar -y -q -s "$VOLUMIO_SHARENAME" -n "comment" -a "$VOLUMIO_SHARENAME" "$SMB_CONFFILE"
     conf-utils setvar -y -q -s "$VOLUMIO_SHARENAME" -n "guest ok" -a "yes" "$SMB_CONFFILE"
     conf-utils setvar -y -q -s "$VOLUMIO_SHARENAME" -n "writeable" -a "yes" "$SMB_CONFFILE"
-    conf-utils setvar -y -q -s "$VOLUMIO_SHARENAME" -n "browseable" -a "yes" -f "pretty" "$SMB_CONFFILE"
+    conf-utils setvar -y -s "$VOLUMIO_SHARENAME" -n "browseable" -a "yes" -f "pretty" "$SMB_CONFFILE"
 }
 
 user () {
