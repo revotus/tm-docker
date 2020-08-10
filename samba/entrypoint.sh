@@ -117,11 +117,11 @@ userfile () {
     done
 }
 
-user_opts="U:u:"
-share_opts="PSTV"
-
 echo $VOLUMIO_SHARENAME
 exit
+
+user_opts="U:u:"
+share_opts="PSTV"
 
 while getopts ":$user_opts" opt; do
     case "$opt" in
