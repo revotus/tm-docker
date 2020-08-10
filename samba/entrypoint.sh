@@ -117,9 +117,6 @@ userfile () {
     done
 }
 
-echo $VOLUMIO_SHARENAME
-exit
-
 user_opts="U:u:"
 share_opts="PSTV"
 
@@ -148,9 +145,6 @@ userfile
 
 while getopts ":$share_opts" opt; do
     case "$opt" in
-        V )
-            add_volumio
-        ;;
         P )
             add_public
         ;;
@@ -159,6 +153,9 @@ while getopts ":$share_opts" opt; do
         ;;
         T )
             add_timemachine
+        ;;
+        V )
+            add_volumio
         ;;
         "?")
             if $(echo "$user_opts" | grep -qv $OPTARG); then

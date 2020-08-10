@@ -46,4 +46,4 @@ VOLUME ["/etc/samba", "/var/log/samba", "/srv/shares", "/media"]
 ENTRYPOINT ["/entrypoint.sh"]
 
 # CMD ["-u", "motus", "-P", "-U", "-T"]
-CMD ["-P", "-S", "-T"]
+CMD ["-P", "-S", "-T", "-V"]
