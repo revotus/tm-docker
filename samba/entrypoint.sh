@@ -42,6 +42,8 @@ add_users () {
     local dirname=$(echo "$USERS_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_PATH_CONTAINER/$dirname/%U"
 
+    grep -q "^shares:" /etc/group || addgroup -S shares
+
     conf-utils add_section -y -q -s "$USERS_SHARENAME" -f "pretty" "$SMB_CONFFILE"
 
     conf-utils setvar -y -q -s "$USERS_SHARENAME" -n "path" -a "$smbpath" "$SMB_CONFFILE"
@@ -54,6 +56,8 @@ add_users () {
 add_timemachine () {
     local dirname=$(echo "$TIMEMACHINE_SHARENAME" | tr '[:upper:]' '[:lower:]')
     local smbpath="$SMBVOL_PATH_CONTAINER/$dirname/%U"
+
+    grep -q "^timemachine:" /etc/group || addgroup -S timemachine
 
     conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "vfs objects" -a "catia fruit streams_xattr" "$SMB_CONFFILE"
     conf-utils setvar -y -q -s "$GLOBAL_SHARENAME" -n "fruit:model" -a "TimeCapsule8,119" "$SMB_CONFFILE"
