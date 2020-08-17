@@ -25,7 +25,9 @@ RUN rm /etc/samba/smb.conf
 # RUN mkdir /srv/shares
 
 RUN addgroup -S --gid 6969 smb && \
-    adduser -D -H -S -G smb -h /tmp -s /usr/nologin -g "Samba User" -u 6969 smbuser
+    adduser -D -H -S -G smb -h /tmp -s /usr/nologin -g "Samba User" -u 6969 smbuser && \
+    addgroup -S shares && \
+    addgroup -S timemachine
 
 
 # USER smbuser:smb
