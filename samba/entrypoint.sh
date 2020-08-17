@@ -9,7 +9,7 @@ usage() {
 Options (fields in '[]' are optional, '<>' are required):
     -h              Show this
     -P              Create Public share
-    -U              Create Users share
+    -S              Create Users share
     -T              Create TimeMachine share
     -u \"<username;password>[;share;timemachine]\"       Add a user
                 required arg: \"<username>;<passwd>\"
